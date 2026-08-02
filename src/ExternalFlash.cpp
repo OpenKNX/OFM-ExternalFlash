@@ -16,9 +16,8 @@
 
 #include "ExternalFlash.h"
 #if defined(ARDUINO_ARCH_RP2040)
-    #ifdef OPENKNX_FTC
-        #include "FileTransferClient.h" // self-register the ext-flash storage backend with the FTC client
-    #endif
+    // Pure provider: OFM-ExternalFlash includes nothing FTC and registers nowhere. It exposes its OWN
+    // self-contained store class efc::IFileStore (EfcFileStore.h/.cpp); consumers use that directly.
 ExternalFlash extFlashModule; // External flash module instance
 
 /**
@@ -60,48 +59,6 @@ void ExternalFlash::init()
     }
 }
 
-    #ifdef OPENKNX_FTC
-// --- FTC storage backend: external flash ("efc/") -----------------------------------------------
-// Self-registered with the FTC client (see setup()). ext-flash is Arduino fs::File (size()/position()/
-// seek()) -- its own handles (the client's shared handles are LittleFS-only), mirroring the SD backend.
-static File _ftcEfcSrcFile;
-static File _ftcEfcSinkFile;
-
-static int32_t efcOpen(const char *path)
-{
-    _ftcEfcSrcFile = extFlashModule.open(path, "r");
-    if (!_ftcEfcSrcFile) return -1;
-    return (int32_t)_ftcEfcSrcFile.size();
-}
-static uint8_t efcRead(uint32_t offset, uint8_t *buf, uint8_t len)
-{
-    if (!_ftcEfcSrcFile || buf == nullptr || len == 0) return 0;
-    if (_ftcEfcSrcFile.position() != offset && !_ftcEfcSrcFile.seek(offset)) return 0;
-    const int r = _ftcEfcSrcFile.read(buf, len);
-    return (r > 0) ? (uint8_t)r : 0;
-}
-static void efcClose() { _ftcEfcSrcFile.close(); }
-
-static bool efcSinkOpen(const char *path)
-{
-    _ftcEfcSinkFile = extFlashModule.open(path, "w"); // create / truncate
-    return (bool)_ftcEfcSinkFile;
-}
-static int efcSinkWrite(const uint8_t *buf, uint16_t len)
-{
-    if (!_ftcEfcSinkFile || buf == nullptr || len == 0) return -1;
-    return (int)_ftcEfcSinkFile.write(buf, len);
-}
-static void efcSinkClose() { _ftcEfcSinkFile.close(); }
-
-static bool efcAvailable() { return extFlashModule.isMounted(); }
-static uint64_t efcFree()
-{
-    FSInfo fi;
-    if (!extFlashModule.info(fi)) return 0;
-    return (uint64_t)fi.totalBytes - fi.usedBytes;
-}
-    #endif // OPENKNX_FTC
 
 /**
  * @brief Setup the ExternalFlash module. Setup the Filesystem (_extFlashLfs) to the external spi flash
@@ -165,12 +122,6 @@ void ExternalFlash::setup(bool configured)
         _extFlashLfs.setTimeCallback([]() -> time_t { return openknx.time.getLocalTime().toTime_t(); });
     }
 
-    #ifdef OPENKNX_FTC
-    // Self-register the ext-flash backend with the FTC client ("efc/..." paths). efcAvailable gates on
-    // mount; efcFree = total - used (cheap FSInfo). Registered regardless of mount -> availability is live.
-    openknxFileTransferClient.registerFileBackend("efc", {efcOpen, efcRead, efcClose},
-                                                  {efcSinkOpen, efcSinkWrite, efcSinkClose}, efcAvailable, efcFree);
-    #endif
 }
 
 /**
