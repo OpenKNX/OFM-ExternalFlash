@@ -16,6 +16,8 @@ namespace efc
     static File _dir;
 
     bool IFileStore::available() { return extFlashModule.isMounted(); }
+    // A read (_src) or write (_sink) transfer is live -> serialize one transfer per drive (guards open()/sinkOpen()).
+    bool IFileStore::busy() { return (bool)_src || (bool)_sink; }
     uint64_t IFileStore::totalBytes()
     {
         FSInfo fi;
@@ -31,6 +33,7 @@ namespace efc
 
     int32_t IFileStore::open(const char *path)
     {
+        if (busy()) return -1; // another transfer holds a handle -> refuse (no cursor hijack)
         _src = extFlashModule.open(path, "r");
         if (!_src) return -1;
         return (int32_t)_src.size();
@@ -53,8 +56,19 @@ namespace efc
 
     bool IFileStore::exists(const char *path) { return extFlashModule.exists(path); }
 
+    // Local File (never the transfer handle) -> stat without tripping busy(); LittleFS has no FsFile-copy hazard.
+    bool IFileStore::isDir(const char *path)
+    {
+        File f = extFlashModule.open(path, "r");
+        if (!f) return false;
+        const bool d = f.isDirectory();
+        f.close();
+        return d;
+    }
+
     bool IFileStore::sinkOpen(const char *path, uint32_t offset)
     {
+        if (busy()) return false; // another transfer holds a handle -> refuse (no concurrent write on one drive)
         _sink = extFlashModule.open(path, offset ? "r+" : "w");
         if (!_sink) return false;
         if (offset && !_sink.seek(offset))
