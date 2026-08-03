@@ -1,4 +1,8 @@
-#ifdef EXTERNAL_FLASH_MODULE
+// Backward-compat: flag renamed EXTERNAL_FLASH_MODULE -> OPENKNX_EXTFLASH; old name still works.
+#if defined(EXTERNAL_FLASH_MODULE) && !defined(OPENKNX_EXTFLASH)
+    #define OPENKNX_EXTFLASH
+#endif
+#ifdef OPENKNX_EXTFLASH
 /**
  * @class ExternalFlash
  * @brief Interface for managing external flash memory in the OpenKNX ecosystem.
@@ -1009,4 +1013,4 @@ void ExternalFlash::setupExternalConfig() // ToDo EC: Make a configuration wrapp
 #endif
 }
 #endif //
-#endif // #ifdef EXTERNAL_FLASH_MODULE
+#endif // #ifdef OPENKNX_EXTFLASH

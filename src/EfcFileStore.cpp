@@ -1,5 +1,9 @@
+// Backward-compat: flag renamed EXTERNAL_FLASH_MODULE -> OPENKNX_EXTFLASH; old name still works.
+#if defined(EXTERNAL_FLASH_MODULE) && !defined(OPENKNX_EXTFLASH)
+    #define OPENKNX_EXTFLASH
+#endif
 #include "EfcFileStore.h"
-#ifdef EXTERNAL_FLASH_MODULE
+#ifdef OPENKNX_EXTFLASH
     #include <string.h>
     #include "ExternalFlash.h"
 

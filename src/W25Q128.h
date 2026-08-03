@@ -1,4 +1,8 @@
-#ifdef EXTERNAL_FLASH_MODULE
+// Backward-compat: flag renamed EXTERNAL_FLASH_MODULE -> OPENKNX_EXTFLASH; old name still works.
+#if defined(EXTERNAL_FLASH_MODULE) && !defined(OPENKNX_EXTFLASH)
+    #define OPENKNX_EXTFLASH
+#endif
+#ifdef OPENKNX_EXTFLASH
     #pragma once
 /**
  * @file        W25Q128.h
@@ -124,4 +128,4 @@ class W25Q128
     uint8_t transfer(uint8_t data);
 };
     #endif // ARDUINO_ARCH_RP2040
-#endif     // EXTERNAL_FLASH_MODULE
+#endif     // OPENKNX_EXTFLASH

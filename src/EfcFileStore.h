@@ -1,6 +1,10 @@
+// Backward-compat: flag renamed EXTERNAL_FLASH_MODULE -> OPENKNX_EXTFLASH; old name still works.
+#if defined(EXTERNAL_FLASH_MODULE) && !defined(OPENKNX_EXTFLASH)
+    #define OPENKNX_EXTFLASH
+#endif
 #pragma once
 // efc::IFileStore — external-flash file store; identical API to sd::IFileStore, no shared base. FS-free header.
-#ifdef EXTERNAL_FLASH_MODULE
+#ifdef OPENKNX_EXTFLASH
     #include <cstdint>
 
 namespace efc
