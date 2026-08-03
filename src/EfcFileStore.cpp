@@ -69,6 +69,12 @@ namespace efc
         if (!_sink || buf == nullptr || len == 0) return -1;
         return (int)_sink.write(buf, len);
     }
+    int IFileStore::sinkWriteAt(uint32_t offset, const uint8_t *buf, uint16_t len)
+    {
+        if (!_sink || buf == nullptr || len == 0) return -1;
+        if (_sink.position() != offset && !_sink.seek(offset)) return -1;
+        return (int)_sink.write(buf, len);
+    }
     void IFileStore::sinkClose() { _sink.close(); }
 
     bool IFileStore::dirOpen(const char *path)
@@ -93,5 +99,6 @@ namespace efc
     bool IFileStore::remove(const char *path) { return extFlashModule.remove(path); }
     bool IFileStore::mkdir(const char *path) { return extFlashModule.mkdir(path); }
     bool IFileStore::rmdir(const char *path) { return extFlashModule.rmdir(path); }
+    bool IFileStore::rename(const char *oldPath, const char *newPath) { return extFlashModule.rename(oldPath, newPath); }
 } // namespace efc
 #endif
