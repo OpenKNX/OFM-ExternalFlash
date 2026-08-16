@@ -66,8 +66,9 @@ namespace efc
         return d;
     }
 
-    bool IFileStore::sinkOpen(const char *path, uint32_t offset)
+    bool IFileStore::sinkOpen(const char *path, uint32_t offset, uint32_t sizeHint)
     {
+        (void)sizeHint; // no-op on LittleFS (lazy small-block allocation)
         if (busy()) return false; // another transfer holds a handle -> refuse (no concurrent write on one drive)
         _sink = extFlashModule.open(path, offset ? "r+" : "w");
         if (!_sink) return false;
