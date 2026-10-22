@@ -148,7 +148,9 @@ void ExternalFlash::processInputKo(GroupObject &ko)
 
 void ExternalFlash::showHelp()
 {
+#ifdef OPENKNX_CONSOLE_DEV
     openknx.console.printHelpLine("efc", "External Flash Control Module. Use 'efc ?' for more.");
+#endif
 }
 
 /**
@@ -158,6 +160,11 @@ void ExternalFlash::showHelp()
  */
 bool ExternalFlash::processCommand(const std::string command, bool diagnose)
 {
+#ifndef OPENKNX_CONSOLE_DEV
+    (void)command; // "efc" console is part of OPENKNX_CONSOLE_DEV
+    (void)diagnose;
+    return false;
+#else
     bool bRet = false;
     if ((!diagnose) && command.compare(0, 4, "efc ") == 0)
     {
@@ -575,6 +582,7 @@ bool ExternalFlash::processCommand(const std::string command, bool diagnose)
         }
     }
     return bRet;
+#endif
 }
 
 /**
