@@ -30,7 +30,6 @@ class ExternalFlash : public OpenKNX::Module
     void init();                                                            // Initialize the ExternalFlash module
     void setup(bool configured) override;                                   // Setup the Filesystem (_extFlashLfs)
     void loop(bool configured) override;                                    // Loop for the ExternalFlash module
-    void processInputKo(GroupObject &ko) override;                          // Process GroupObjects
     void showHelp() override;                                               // Show help for console commands
     bool processCommand(const std::string command, bool diagnose) override; // Process console commands
 

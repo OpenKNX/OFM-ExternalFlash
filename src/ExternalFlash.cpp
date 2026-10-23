@@ -137,15 +137,6 @@ void ExternalFlash::loop(bool configured)
     /*NOOP*/
 }
 
-/**
- * @brief Process GroupObjects
- * @param ko, GroupObject to process
- */
-void ExternalFlash::processInputKo(GroupObject &ko)
-{
-    /*NOOP*/
-}
-
 void ExternalFlash::showHelp()
 {
 #ifdef OPENKNX_CONSOLE_DEV
