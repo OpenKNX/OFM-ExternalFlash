@@ -5,6 +5,12 @@ firmware as a file-store provider. Entries are grouped by module version; every 
 in this repository.
 
 
+## 0.0.2: 2026-10-23
+
+* Change: the `efc` console commands are built only with `OPENKNX_CONSOLE_DEV`; without it the module answers no `efc` command
+* Fix: the module builds on a coupler mask without group objects -- it no longer overrides `processInputKo()`, which the base class declares only when group objects exist
+
+
 ## 0.0.1: 2026-09-15
 
 First tagged state. The module has existed since 2024 as a store wired into the file transfer client,
